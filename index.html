@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HE - Falcon — Gold Trade Decision Tree</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#0f1923;color:#fff;padding:24px;font-size:13px}
+
+/* HEADER */
+.hdr{border-bottom:2px solid #B8860B;padding-bottom:14px;margin-bottom:22px;display:flex;justify-content:space-between;align-items:flex-start}
+.hdr-l .tag{font-size:10px;letter-spacing:2px;color:#B8860B;font-weight:700}
+.hdr-l h1{font-size:22px;font-weight:700;margin-top:4px}
+.hdr-l .sub{font-size:11px;color:#8fa3b3;margin-top:3px}
+.hdr-r{text-align:right;font-size:11px;color:#8fa3b3;line-height:1.8}
+.hdr-r strong{color:#fff}
+
+/* LAYOUT */
+.body-grid{display:grid;grid-template-columns:420px 1fr;gap:20px;align-items:start}
+
+/* TREE PANEL */
+.tree-panel{background:#111e2a;border-radius:10px;padding:18px}
+.tree-section-label{font-size:9px;letter-spacing:2px;color:#B8860B;font-weight:700;text-transform:uppercase;margin-bottom:10px}
+
+.node-group{margin-bottom:4px}
+.node-q{font-size:11px;color:#8fa3b3;margin-bottom:8px;padding:8px 10px;background:#162030;border-radius:6px;border-left:3px solid #2a4a6a}
+
+/* Clickable choice nodes */
+.choice{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:8px;cursor:pointer;transition:all 0.2s;margin-bottom:6px;border:1px solid transparent;position:relative}
+.choice:hover{border-color:#B8860B;background:#1c2e1c}
+.choice.active{border-color:#B8860B;background:#1c2a18}
+.choice.active-blue{border-color:#5a9fcf;background:#1a2535}
+.choice.active-red{border-color:#e05a5a;background:#2a1a1a}
+.choice.active-green{border-color:#4CAF50;background:#1a2a1a}
+.choice.active-amber{border-color:#e09a30;background:#251e10}
+
+.choice-letter{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;margin-top:1px}
+.cl-gold{background:#B8860B;color:#0f1923}
+.cl-blue{background:#5a9fcf;color:#0f1923}
+.cl-green{background:#4CAF50;color:#0f1923}
+.cl-red{background:#e05a5a;color:#fff}
+.cl-amber{background:#e09a30;color:#0f1923}
+.cl-grey{background:#3a5060;color:#fff}
+
+.choice-body{flex:1}
+.choice-title{font-size:12px;font-weight:700;margin-bottom:2px}
+.choice-desc{font-size:10px;color:#8fa3b3;line-height:1.4}
+.choice-badges{display:flex;gap:5px;margin-top:5px;flex-wrap:wrap}
+.badge{font-size:9px;padding:2px 7px;border-radius:3px;font-weight:600}
+.b-gold{background:rgba(184,134,11,0.2);color:#B8860B;border:1px solid rgba(184,134,11,0.4)}
+.b-blue{background:rgba(90,159,207,0.2);color:#5a9fcf;border:1px solid rgba(90,159,207,0.4)}
+.b-green{background:rgba(76,175,80,0.2);color:#4CAF50;border:1px solid rgba(76,175,80,0.4)}
+.b-red{background:rgba(224,90,90,0.2);color:#e05a5a;border:1px solid rgba(224,90,90,0.4)}
+.b-amber{background:rgba(224,154,48,0.2);color:#e09a30;border:1px solid rgba(224,154,48,0.4)}
+.b-grey{background:rgba(90,106,122,0.2);color:#8fa3b3;border:1px solid rgba(90,106,122,0.3)}
+
+/* Connector lines */
+.tree-connector{display:flex;gap:0;margin:2px 0 2px 10px}
+.tc-line{width:2px;background:#2a3a4a;margin-right:10px;min-height:12px}
+.tc-branch{border-left:2px solid #2a3a4a;border-bottom:2px solid #2a3a4a;width:10px;height:10px;margin-top:4px;margin-right:4px;flex-shrink:0}
+
+.sub-nodes{margin-left:22px;margin-top:4px;padding-left:12px;border-left:2px solid #1e3040}
+.sub-nodes.hidden{display:none}
+
+.tree-divider{height:1px;background:#1e3040;margin:12px 0}
+.rec-badge{position:absolute;top:8px;right:8px;font-size:8px;background:#B8860B;color:#0f1923;padding:2px 6px;border-radius:3px;font-weight:700}
+
+/* CONSEQUENCE PANEL */
+.cons-panel{background:#111e2a;border-radius:10px;padding:18px;position:sticky;top:24px}
+.cons-panel .empty{text-align:center;padding:40px 20px;color:#3a5060}
+.cons-panel .empty .arrow{font-size:32px;color:#2a3a4a;margin-bottom:10px}
+.cons-panel .empty p{font-size:12px;line-height:1.6}
+
+.cons-header{display:flex;align-items:center;gap:10px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #1e3040}
+.cons-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.cons-title{font-size:15px;font-weight:700;line-height:1.2}
+.cons-sub{font-size:10px;color:#8fa3b3;margin-top:2px}
+
+.cons-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.cons-metric{background:#162030;border-radius:8px;padding:10px 12px}
+.cons-metric .mk{font-size:9px;color:#8fa3b3;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px}
+.cons-metric .mv{font-size:14px;font-weight:700}
+.cons-metric .ms{font-size:10px;color:#8fa3b3;margin-top:2px}
+
+.cons-section{margin-bottom:12px}
+.cons-section-title{font-size:9px;letter-spacing:1.5px;color:#B8860B;font-weight:700;text-transform:uppercase;margin-bottom:8px}
+.cons-row{display:flex;justify-content:space-between;align-items:flex-start;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:11px;gap:12px}
+.cons-row:last-child{border-bottom:none}
+.cons-row .ck{color:#8fa3b3;flex:1}
+.cons-row .cv{font-weight:600;text-align:right}
+.cv-green{color:#4CAF50}.cv-red{color:#e05a5a}.cv-gold{color:#B8860B}.cv-blue{color:#5a9fcf}.cv-amber{color:#e09a30}
+
+.cons-note{background:#162030;border-radius:6px;padding:10px 12px;font-size:10px;color:#8fa3b3;line-height:1.6;border-left:3px solid #B8860B}
+.cons-note strong{color:#fff;display:block;margin-bottom:3px}
+
+.rec-panel{background:rgba(76,175,80,0.08);border:1px solid rgba(76,175,80,0.3);border-radius:8px;padding:10px 12px;margin-top:10px;font-size:10px;color:#4CAF50;line-height:1.6}
+.rec-panel strong{display:block;font-size:11px;margin-bottom:3px}
+
+.warn-panel{background:rgba(224,154,48,0.08);border:1px solid rgba(224,154,48,0.3);border-radius:8px;padding:10px 12px;margin-top:10px;font-size:10px;color:#e09a30;line-height:1.6}
+.warn-panel strong{display:block;font-size:11px;margin-bottom:3px}
+
+/* BOTTOM CHECKLIST */
+.checklist{margin-top:20px;background:#111e2a;border-radius:10px;padding:18px}
+.cl-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:12px}
+.cl-col-title{font-size:9px;letter-spacing:1.5px;color:#B8860B;font-weight:700;text-transform:uppercase;margin-bottom:8px}
+.cl-item{display:flex;align-items:flex-start;gap:8px;padding:4px 0;font-size:10px;color:#8fa3b3;line-height:1.4}
+.cl-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:3px;background:#3a5060}
+.cl-dot.done{background:#4CAF50}
+.cl-dot.needed{background:#e09a30}
+.cl-dot.critical{background:#e05a5a}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-l">
+    <div class="tag">Gold Trade — Decision Framework</div>
+    <h1>HE - Falcon &mdash; Arbitrage Trade Decision Tree</h1>
+    <div class="sub">Aureus Trading Co. Ltd (Bangkok) &rarr; HE - Falcon &rarr; Dubai Buyer &nbsp;·&nbsp; Trial Trade &nbsp;·&nbsp; 400 kg</div>
+  </div>
+  <div class="hdr-r">
+    <div>Click any option to see consequences &nbsp;<strong>&rarr;</strong></div>
+    <div>Gold: <strong>Decertified (Thai origin)</strong></div>
+    <div>Recertification: <strong>Hong Kong (LBMA) or Qatar (non-LBMA)</strong></div>
+  </div>
+</div>
+
+<div class="body-grid">
+
+<!-- TREE PANEL -->
+<div class="tree-panel">
+
+  <!-- SECTION 1 -->
+  <div class="tree-section-label">Section 1 — Gold Handling Route</div>
+  <div class="node-q">The gold is currently decertified (Thai origin). How is it handled before delivery to the buyer?</div>
+
+  <div class="choice active" id="n-b" onclick="show('path-b')">
+    <div class="choice-letter cl-gold">B</div>
+    <div class="choice-body">
+      <div class="choice-title">Hong Kong Recertification — Pure Arbitrage</div>
+      <div class="choice-desc">Gold is assayed and recertified to LBMA Good Delivery standard in Hong Kong before or at delivery. Never touches the Qatar refinery. Intermediary does not take physical custody.</div>
+      <div class="choice-badges">
+        <span class="badge b-green">LBMA GD output</span>
+        <span class="badge b-green">~1 week physical</span>
+        <span class="badge b-gold">Pure arbitrage</span>
+        <span class="badge b-blue">LBMA buyers</span>
+      </div>
+    </div>
+    <div class="rec-badge">RECOMMENDED</div>
+  </div>
+
+  <div class="choice" id="n-a" onclick="show('path-a')">
+    <div class="choice-letter cl-grey">A</div>
+    <div class="choice-body">
+      <div class="choice-title">Qatar Refinery Route — Processing Trade</div>
+      <div class="choice-desc">Gold ships to HE - Falcon's related refinery in Qatar. Refined and resold from Qatar. Qatar facility is not LBMA-accredited — suitable only for buyers who do not require LBMA certification.</div>
+      <div class="choice-badges">
+        <span class="badge b-amber">Non-LBMA output</span>
+        <span class="badge b-amber">~2 weeks physical</span>
+        <span class="badge b-red">Custody risk</span>
+        <span class="badge b-grey">Non-LBMA buyers only</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="tree-divider"></div>
+
+  <!-- SECTION 2 -->
+  <div class="tree-section-label">Section 2 — Proof of Product (Path B only)</div>
+  <div class="node-q">No buyer will issue a DLC or sign an SPA without proof of product. How is this resolved while keeping the back-to-back structure intact?</div>
+
+  <div class="choice" id="n-pop1" onclick="show('pop-sgs')">
+    <div class="choice-letter cl-green">1</div>
+    <div class="choice-body">
+      <div class="choice-title">Third-Party Inspection at Source </div>
+      <div class="choice-desc">Independent inspector travels to Bangkok, verifies bars, issues certified inspection report. Buyers accept SGS/BV report as proof. Back-to-back DLC structure preserved.</div>
+      <div class="choice-badges">
+        <span class="badge b-green">Back-to-back preserved</span>
+        <span class="badge b-green">Buyer-accepted standard</span>
+        <span class="badge b-gold">~$8–12k cost</span>
+        <span class="badge b-blue">3–5 days</span>
+      </div>
+    </div>
+    <div class="rec-badge">TRIAL STANDARD</div>
+  </div>
+
+  <div class="choice" id="n-pop2" onclick="show('pop-icpo')">
+    <div class="choice-letter cl-blue">2</div>
+    <div class="choice-body">
+      <div class="choice-title">ICPO Bridge — Buyer Issues Soft Commitment First</div>
+      <div class="choice-desc">Buyer issues an Irrevocable Corporate Purchase Order. Seller releases proof on receipt. DLC follows once buyer has verified. Softer than DLC but legally binding.</div>
+      <div class="choice-badges">
+        <span class="badge b-blue">No inspection cost</span>
+        <span class="badge b-amber">Requires sophisticated buyer</span>
+        <span class="badge b-gold">5–7 days added</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="choice" id="n-pop3" onclick="show('pop-soft')">
+    <div class="choice-letter cl-amber">3</div>
+    <div class="choice-body">
+      <div class="choice-title">Soft Proof + Buyer's Inspector Right</div>
+      <div class="choice-desc">Seller provides bar list, assay certs, storage docs (soft POP). Buyer sends own representative to verify before committing. HE - Falcon facilitates access.</div>
+      <div class="choice-badges">
+        <span class="badge b-amber">Buyer bears inspection cost</span>
+        <span class="badge b-amber">Slower timeline</span>
+        <span class="badge b-grey">Depends on buyer willingness</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="choice" id="n-pop4" onclick="show('pop-btb')">
+    <div class="choice-letter cl-grey">4</div>
+    <div class="choice-body">
+      <div class="choice-title">Intermediary Takes Bridging Position</div>
+      <div class="choice-desc">HE - Falcon commits to Aureus conditionally. Shows buyer the seller's documentation as proof. Buyer commits. Deal completes. Intermediary briefly holds exposure.</div>
+      <div class="choice-badges">
+        <span class="badge b-red">Capital exposure</span>
+        <span class="badge b-red">Not back-to-back</span>
+        <span class="badge b-gold">Faster — no third party</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="tree-divider"></div>
+
+  <!-- SECTION 3 -->
+  <div class="tree-section-label">Section 3 — Commission Structure</div>
+  <div class="node-q">Who pays each commission pool? This is a commercial negotiation — each option has a different P&L impact on HE - Falcon.</div>
+
+  <div class="choice" id="n-c1" onclick="show('comm-1')">
+    <div class="choice-letter cl-green">A</div>
+    <div class="choice-body">
+      <div class="choice-title">Seller bears buy-side · Buyer bears sell-side</div>
+      <div class="choice-desc">Neither pool hits HE - Falcon's P&L. Maximum intermediary margin. Net P&L = gross spread minus costs only.</div>
+      <div class="choice-badges">
+        <span class="badge b-green">Max P&L to intermediary</span>
+        <span class="badge b-gold">Est. ~$1.95M net</span>
+      </div>
+    </div>
+    <div class="rec-badge">MAX MARGIN</div>
+  </div>
+
+  <div class="choice" id="n-c2" onclick="show('comm-2')">
+    <div class="choice-letter cl-blue">B</div>
+    <div class="choice-body">
+      <div class="choice-title">Seller bears buy-side · Intermediary bears sell-side (current model)</div>
+      <div class="choice-desc">HE - Falcon funds sell-side pool and retains 50%. Net P&L reduced by external agent share only.</div>
+      <div class="choice-badges">
+        <span class="badge b-blue">Current model scenario</span>
+        <span class="badge b-gold">Est. ~$1.37M net</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="choice" id="n-c3" onclick="show('comm-3')">
+    <div class="choice-letter cl-amber">C</div>
+    <div class="choice-body">
+      <div class="choice-title">Intermediary bears both pools</div>
+      <div class="choice-desc">HE - Falcon funds both commission pools. Highest cost but gives intermediary full control over agent distributions. Reduced margin.</div>
+      <div class="choice-badges">
+        <span class="badge b-amber">Full agent control</span>
+        <span class="badge b-red">Lowest net P&L</span>
+        <span class="badge b-gold">Est. ~$792k net</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- CONSEQUENCE PANEL -->
+<div class="cons-panel" id="cons-panel">
+  <div class="empty" id="empty-state">
+    <div class="arrow">&#9664;</div>
+    <p>Select any option from the decision tree to see the full consequence analysis — timeline, risk profile, cost impact, and recommendation.</p>
+  </div>
+  <div id="cons-content" style="display:none"></div>
+</div>
+
+</div>
+
+<!-- TRIAL TRADE INFRASTRUCTURE -->
+<div class="checklist">
+  <div class="tree-section-label" style="margin-bottom:4px">Trial Trade — Infrastructure Setup</div>
+  <p style="font-size:11px;color:#8fa3b3;margin-bottom:12px">Decisions made on this first trade become the template for all future trades. The following must be established before or during this trade.</p>
+  <div class="cl-grid">
+    <div>
+      <div class="cl-col-title">Legal</div>
+      <div class="cl-item"><div class="cl-dot critical"></div>NCNDA signed by all parties in mandate chain</div>
+      <div class="cl-item"><div class="cl-dot critical"></div>IMFPA — commission disbursement instructions locked</div>
+      <div class="cl-item"><div class="cl-dot needed"></div>Master SPA framework agreed with Aureus (post-trial)</div>
+      <div class="cl-item"><div class="cl-dot needed"></div>Recertification agreement with HK assayer</div>
+    </div>
+    <div>
+      <div class="cl-col-title">Banking & Finance</div>
+      <div class="cl-item"><div class="cl-dot critical"></div>DLC-capable bank confirmed — sell leg (buyer's bank)</div>
+      <div class="cl-item"><div class="cl-dot critical"></div>DLC-capable bank confirmed — buy leg (HE - Falcon bank)</div>
+      <div class="cl-item"><div class="cl-dot needed"></div>UCP 600 document checklist agreed with both banks</div>
+      <div class="cl-item"><div class="cl-dot needed"></div>DLC fee structure agreed (0.50% buy / 0.10% sell)</div>
+    </div>
+    <div>
+      <div class="cl-col-title">Inspection & Assay</div>
+      <div class="cl-item"><div class="cl-dot critical"></div>Third-Party Inspection  engagement confirmed for Bangkok</div>
+      <div class="cl-item"><div class="cl-dot critical"></div>LBMA-accredited assayer confirmed in Hong Kong</div>
+      <div class="cl-item"><div class="cl-dot needed"></div>Assay protocol agreed (fineness, bar marking, serial)</div>
+      <div class="cl-item"><div class="cl-dot needed"></div>Inspection report format accepted by target buyers</div>
+    </div>
+    <div>
+      <div class="cl-col-title">Commercial</div>
+      <div class="cl-item"><div class="cl-dot critical"></div>Buyer identified and pre-qualified (KYC / NCNDA)</div>
+      <div class="cl-item"><div class="cl-dot critical"></div>POP method agreed and accepted by buyer</div>
+      <div class="cl-item"><div class="cl-dot needed"></div>Commission structure negotiated and documented</div>
+      <div class="cl-item"><div class="cl-dot needed"></div>Scale-up volume and frequency discussed with Aureus</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:16px;margin-top:12px;font-size:10px">
+    <div style="display:flex;align-items:center;gap:6px;color:#e05a5a"><div style="width:8px;height:8px;border-radius:50%;background:#e05a5a"></div>Must be in place before trade executes</div>
+    <div style="display:flex;align-items:center;gap:6px;color:#e09a30"><div style="width:8px;height:8px;border-radius:50%;background:#e09a30"></div>Should be established during this trade</div>
+  </div>
+</div>
+
+<script>
+const data = {
+  'path-b': {
+    icon:'🏅', iconBg:'rgba(184,134,11,0.2)', color:'#B8860B',
+    title:'Hong Kong Recertification', sub:'Pure Arbitrage — Recommended Route',
+    metrics:[
+      {k:'Physical Timeline',v:'~1 week',s:'Bangkok → HK recert → Dubai',vc:'cv-green'},
+      {k:'Full Process',v:'3–4 weeks',s:'Incl. paperwork, DLC, admin',vc:''},
+      {k:'Certification Output',v:'LBMA GD',s:'Good Delivery standard',vc:'cv-green'},
+      {k:'Intermediary Exposure',v:'Minimal',s:'If back-to-back preserved',vc:'cv-green'},
+    ],
+    rows:[
+      {k:'Target buyer market',v:'LBMA standard buyers — bullion banks, DMCC traders, institutional',vc:'cv-gold'},
+      {k:'Capital required by intermediary',v:'None (if DLC back-to-back structure holds)',vc:'cv-green'},
+      {k:'Recertification cost',v:'LBMA assayer fee — typically $15–30k for 400 kg',vc:''},
+      {k:'Price achievable on sell leg',v:'LBMA spot minus small discount (e.g. −4%)',vc:'cv-green'},
+      {k:'Discount justification',v:'Sourcing premium, admin, intermediary margin — not purity',vc:'cv-gold'},
+      {k:'Key dependency',v:'POP must be resolved to preserve back-to-back structure',vc:'cv-amber'},
+    ],
+    note:{title:'Why this is fundamentally different from Path A',body:'This is a brokered arbitrage — the intermediary profits from the price gap between decertified and certified gold without taking physical custody or processing risk. The Qatar refinery route is a processing business with different capital, risk and margin dynamics. These two paths should never be presented to the UBO as equivalent options.'},
+    rec:{text:'This is the right route for a trial trade. It establishes the pure arbitrage model, requires no refinery relationship, and sets the standard process (inspection → HK recert → DLC) that scales cleanly to larger volumes.'}
+  },
+  'path-a': {
+    icon:'🏭', iconBg:'rgba(224,154,48,0.15)', color:'#e09a30',
+    title:'Qatar Refinery Route', sub:'Processing Trade — Use Only for Non-LBMA Buyers',
+    metrics:[
+      {k:'Physical Timeline',v:'~2 weeks',s:'Bangkok → Qatar → buyer',vc:'cv-amber'},
+      {k:'Full Process',v:'5–7 weeks',s:'Incl. all paperwork and admin',vc:''},
+      {k:'Certification Output',v:'Non-LBMA',s:'Qatar not LBMA-accredited',vc:'cv-amber'},
+      {k:'Intermediary Exposure',v:'High',s:'Physical custody during refinery',vc:'cv-red'},
+    ],
+    rows:[
+      {k:'Target buyer market',v:'Buyers who accept non-LBMA gold — regional, certain central banks, manufacturers',vc:'cv-amber'},
+      {k:'Capital required',v:'Full gold value held during ~2-week refinery period',vc:'cv-red'},
+      {k:'Treatment & refining charges',v:'Deducted from proceeds — reduces effective sell price',vc:'cv-red'},
+      {k:'Insurance during transit & refinery',v:'Required for full value — significant additional cost',vc:'cv-red'},
+      {k:'Pricing vs Path B',v:'Lower achievable sell price (non-LBMA discount is larger)',vc:'cv-red'},
+      {k:'Upside',v:'HE - Falcon controls refinery relationship — vertical integration value',vc:'cv-gold'},
+    ],
+    note:{title:'When Path A makes sense',body:'If HE - Falcon has strong relationships with non-LBMA buyers who value the Qatar refinery output specifically, or if the volume economics of refinery utilisation justify the working capital requirement, Path A has strategic merit. But it is a different business — not a variant of Path B.'},
+    warn:{text:'Do not present this route to the UBO as equivalent to Path B. Path A requires working capital equal to the full gold value for ~2 weeks, insurance, refinery fees, and longer logistics. It should be evaluated separately as a processing business, not a back-to-back arbitrage.'}
+  },
+  'pop-sgs': {
+    icon:'🔍', iconBg:'rgba(76,175,80,0.15)', color:'#4CAF50',
+    title:'Third-Party Inspection ', sub:'Recommended Standard for Trial Trade and All Future Trades',
+    metrics:[
+      {k:'Cost',v:'$8–12k',s:'Inspector travel + report',vc:'cv-gold'},
+      {k:'Time to POP',v:'3–5 days',s:'Inspector visit + report issue',vc:'cv-green'},
+      {k:'Back-to-Back Preserved?',v:'Yes',s:'DLC structure intact',vc:'cv-green'},
+      {k:'Buyer Acceptance',v:'Universal',s:'SGS/BV accepted globally',vc:'cv-green'},
+    ],
+    rows:[
+      {k:'Process',v:'Engage SGS/BV → inspector visits Bangkok → verifies bars, weight, fineness → issues certified report',vc:''},
+      {k:'What report contains',v:'Bar count, serial numbers, weight, assay fineness, storage confirmation',vc:'cv-gold'},
+      {k:'Buyer receives',v:'Certified inspection report as POP → issues DLC → back-to-back proceeds',vc:'cv-green'},
+      {k:'Cost borne by',v:'Typically HE - Falcon (add to operating costs) or split with Aureus',vc:''},
+      {k:'Reusable for future trades?',v:'Yes — same inspector relationship, same process, lower setup friction over time',vc:'cv-green'},
+      {k:'Risk if inspector finds issues',v:'Trade stops — but this is the correct outcome. Better than discovering post-DLC.',vc:'cv-gold'},
+    ],
+    note:{title:'Why this should be the trial trade standard',body:'Setting SGS/BV inspection as the standard process for this trade means every future trade runs on the same rails. Buyers know what to expect, banks are familiar with the documentation format, and the inspection report becomes a standard item in the DLC document set.'},
+    rec:{text:'Engage SGS or Bureau Veritas immediately. The $8–12k cost is negligible relative to the deal value and buys certainty for the buyer, the intermediary, and the banking chain. This is the cleanest way to unlock the back-to-back DLC structure on a trial trade.'}
+  },
+  'pop-icpo': {
+    icon:'📋', iconBg:'rgba(90,159,207,0.15)', color:'#5a9fcf',
+    title:'ICPO Bridge', sub:'Viable for Sophisticated Buyers — Adds Time',
+    metrics:[
+      {k:'Cost',v:'Nil',s:'No inspection required',vc:'cv-green'},
+      {k:'Added Timeline',v:'5–7 days',s:'ICPO → POP → DLC sequence',vc:'cv-amber'},
+      {k:'Back-to-Back Preserved?',v:'Yes',s:'If buyer honours ICPO',vc:'cv-blue'},
+      {k:'Buyer Acceptance',v:'Selective',s:'Requires experienced buyer',vc:'cv-amber'},
+    ],
+    rows:[
+      {k:'Process',v:'Buyer issues ICPO (irrevocable corporate PO) → seller releases POP → buyer verifies → issues DLC',vc:''},
+      {k:'What ICPO commits the buyer to',v:'Legal obligation to proceed if POP verified — not as strong as a DLC but enforceable',vc:'cv-gold'},
+      {k:'Risk',v:'If buyer disputes POP after ICPO, legal exposure — needs legal review',vc:'cv-amber'},
+      {k:'Suitable buyer profile',v:'Experienced gold traders, DMCC-registered, familiar with ICPO/FCO process',vc:'cv-blue'},
+      {k:'Not suitable for',v:'New counterparties, unsophisticated buyers, or buyers without gold trade experience',vc:'cv-red'},
+    ],
+    note:{title:'ICPO in context',body:'The ICPO/FCO process is standard in physical gold OTC markets and your mandate chain partners will be familiar with it. However, for a trial trade with a new buyer, it adds legal complexity. Pair it with a legal review of the ICPO language before accepting one.'},
+    warn:{text:'ICPOs are frequently misused in gold fraud schemes. Always have legal counsel review the ICPO document before treating it as valid proof of commitment. A genuine buyer will accept standard ICPO language without modification.'}
+  },
+  'pop-soft': {
+    icon:'📄', iconBg:'rgba(224,154,48,0.15)', color:'#e09a30',
+    title:'Soft Proof + Buyer Inspector Right', sub:'Slower — Use Only if Buyer Insists',
+    metrics:[
+      {k:'Cost',v:'Buyer bears',s:'Buyer sends own inspector',vc:'cv-amber'},
+      {k:'Added Timeline',v:'7–14 days',s:'Depends on buyer logistics',vc:'cv-amber'},
+      {k:'Back-to-Back Preserved?',v:'Possibly',s:'Depends on buyer commitment',vc:'cv-amber'},
+      {k:'Control',v:'Lower',s:'HE - Falcon depends on buyer speed',vc:'cv-amber'},
+    ],
+    rows:[
+      {k:'Process',v:'Aureus provides bar list, assay certs, storage docs → buyer inspects → buyer commits → DLC',vc:''},
+      {k:'Risk to timeline',v:'Buyer controls inspection timeline — can delay without consequence',vc:'cv-red'},
+      {k:'Risk to deal',v:'Buyer inspector may raise queries or conditions not anticipated',vc:'cv-amber'},
+      {k:'When this is acceptable',v:'Buyer is high-value repeat counterparty, or deal size justifies their process requirements',vc:'cv-gold'},
+    ],
+    note:{title:'Practical note',body:'This option gives the buyer significant process control. For a trial trade, it is not the preferred route — it makes HE - Falcon dependent on the buyer\'s timeline and logistics. Reserve for large strategic buyers where the relationship warrants it.'}
+  },
+  'pop-btb': {
+    icon:'⚠️', iconBg:'rgba(224,90,90,0.15)', color:'#e05a5a',
+    title:'Intermediary Takes Bridging Position', sub:'Avoid on Trial Trade — Changes the Risk Profile',
+    metrics:[
+      {k:'Cost',v:'Capital tied up',s:'Full gold value exposure',vc:'cv-red'},
+      {k:'Timeline',v:'Fastest',s:'No third-party delay',vc:'cv-green'},
+      {k:'Back-to-Back Preserved?',v:'No',s:'Intermediary owns exposure',vc:'cv-red'},
+      {k:'Risk Level',v:'High',s:'Counterparty + price risk',vc:'cv-red'},
+    ],
+    rows:[
+      {k:'What changes',v:'HE - Falcon commits to buy before buyer commits to purchase — holds the exposure gap',vc:'cv-red'},
+      {k:'Capital required',v:'Working capital or credit line equal to buy leg value (~$55.6M)',vc:'cv-red'},
+      {k:'Price risk',v:'If buyer pulls out after HE - Falcon commits, intermediary holds gold at cost',vc:'cv-red'},
+      {k:'When justifiable',v:'Established buyer relationship, very short exposure window, or significantly better pricing to compensate',vc:'cv-amber'},
+      {k:'On trial trade',v:'Not recommended — no established relationship, no basis for taking position risk',vc:'cv-red'},
+    ],
+    warn:{text:'This route is fundamentally not a back-to-back trade. It is a principal position trade. The UBO must understand that the risk profile, capital requirement and returns framework are completely different from the arbitrage model. Do not conflate the two when presenting to investors or partners.'}
+  },
+  'comm-1': {
+    icon:'💰', iconBg:'rgba(76,175,80,0.15)', color:'#4CAF50',
+    title:'Seller bears buy-side · Buyer bears sell-side', sub:'Maximum Margin Scenario — Both Pools Off HE - Falcon P&L',
+    metrics:[
+      {k:'Gross Spread',v:'$2,417,736',s:'4.00% of ref',vc:'cv-gold'},
+      {k:'Comm. P&L Impact',v:'Nil',s:'Neither pool hits intermediary',vc:'cv-green'},
+      {k:'Operating Costs',v:'−$464,730',s:'0.77% of ref',vc:'cv-red'},
+      {k:'Net P&L',v:'~$1,953,006',s:'3.23% of LBMA ref',vc:'cv-green'},
+    ],
+    rows:[
+      {k:'Buy commission pool (3%)',v:'Aureus distributes from own proceeds — does not touch HE - Falcon',vc:'cv-gold'},
+      {k:'Sell commission pool (2%)',v:'Dubai buyer pays above the sell price — or seller net reduces to fund it',vc:'cv-gold'},
+      {k:'HE - Falcon mandate share',v:'Received from both pools without bearing the cost — pure income',vc:'cv-green'},
+      {k:'Commercial feasibility',v:'Requires strong negotiating position or seller / buyer acceptance of structure',vc:'cv-amber'},
+    ],
+    rec:{text:'This is the target structure to negotiate towards. On a trial trade, seller may accept buy-side responsibility if the discount is large enough. Buyer accepting sell-side commission is less common but achievable if the price is structured correctly.'}
+  },
+  'comm-2': {
+    icon:'📊', iconBg:'rgba(90,159,207,0.15)', color:'#5a9fcf',
+    title:'Seller bears buy-side · Intermediary bears sell-side', sub:'Current Model Scenario',
+    metrics:[
+      {k:'Gross Spread',v:'$2,417,736',s:'4.00% of ref',vc:'cv-gold'},
+      {k:'Sell Comm. Impact',v:'−$580,257',s:'External agents only',vc:'cv-red'},
+      {k:'Operating Costs',v:'−$464,730',s:'0.77% of ref',vc:'cv-red'},
+      {k:'Net P&L',v:'~$1,372,749',s:'2.27% of LBMA ref',vc:'cv-blue'},
+    ],
+    rows:[
+      {k:'Buy commission pool',v:'Seller bears — HE - Falcon receives mandate share as income (not deducted)',vc:'cv-gold'},
+      {k:'Sell commission pool funded by',v:'HE - Falcon — pays external agents $580,257, retains $580,257',vc:'cv-blue'},
+      {k:'Net cost of sell pool to HE - Falcon',v:'$580,257 (external agents only — retention offsets the rest)',vc:'cv-amber'},
+      {k:'Why intermediary might accept this',v:'Full control over sell-side agent distributions — strategic value in managing the buyer mandate chain',vc:'cv-gold'},
+    ],
+    note:{title:'Current model',body:'This is the v2 flow diagram scenario. HE - Falcon bears the sell-side pool but retains half — the net P&L cost is only the external agent portion. Common structure when intermediary has strong relationships with the buy-side mandate chain.'}
+  },
+  'comm-3': {
+    icon:'📉', iconBg:'rgba(224,154,48,0.15)', color:'#e09a30',
+    title:'Intermediary bears both commission pools', sub:'Full Control — Lowest Net Margin',
+    metrics:[
+      {k:'Gross Spread',v:'$2,417,736',s:'4.00% of ref',vc:'cv-gold'},
+      {k:'Both Comm. Impact',v:'−$1,160,506',s:'External agents, both legs',vc:'cv-red'},
+      {k:'Operating Costs',v:'−$464,730',s:'0.77% of ref',vc:'cv-red'},
+      {k:'Net P&L',v:'~$792,500',s:'1.31% of LBMA ref',vc:'cv-amber'},
+    ],
+    rows:[
+      {k:'When this structure applies',v:'HE - Falcon managing both mandate chains and controlling all agent relationships',vc:'cv-gold'},
+      {k:'Total commission funded',v:'$2,828,751 (buy + sell pools combined)',vc:'cv-red'},
+      {k:'Total retained by HE - Falcon',v:'~$1,414,375 (50% retention across both pools)',vc:'cv-gold'},
+      {k:'Net outflow to external agents',v:'~$1,414,375 — this is the real P&L cost',vc:'cv-red'},
+      {k:'Strategic rationale',v:'Gives full visibility and control over every party in both chains — valuable for scaling',vc:'cv-amber'},
+    ],
+    warn:{text:'At $792k net on a $60M reference trade (1.31%), the margin is thin relative to execution risk. Only accept this structure if the agent relationships being managed are genuinely strategic for future deal flow, or if deal volume is expected to scale significantly.'}
+  }
+};
+
+function show(id) {
+  // Clear active states
+  document.querySelectorAll('.choice').forEach(el => {
+    el.classList.remove('active','active-blue','active-red','active-green','active-amber');
+  });
+
+  // Set active state on clicked node
+  const nodeMap = {
+    'path-b':'n-b','path-a':'n-a',
+    'pop-sgs':'n-pop1','pop-icpo':'n-pop2','pop-soft':'n-pop3','pop-btb':'n-pop4',
+    'comm-1':'n-c1','comm-2':'n-c2','comm-3':'n-c3'
+  };
+  const colorMap = {
+    'path-b':'active','path-a':'active-amber',
+    'pop-sgs':'active-green','pop-icpo':'active-blue','pop-soft':'active-amber','pop-btb':'active-red',
+    'comm-1':'active-green','comm-2':'active-blue','comm-3':'active-amber'
+  };
+  const nodeEl = document.getElementById(nodeMap[id]);
+  if(nodeEl) nodeEl.classList.add(colorMap[id] || 'active');
+
+  const d = data[id];
+  if(!d) return;
+
+  document.getElementById('empty-state').style.display = 'none';
+  const cc = document.getElementById('cons-content');
+  cc.style.display = 'block';
+
+  let metricsHtml = d.metrics.map(m => `
+    <div class="cons-metric">
+      <div class="mk">${m.k}</div>
+      <div class="mv ${m.vc}">${m.v}</div>
+      <div class="ms">${m.s}</div>
+    </div>`).join('');
+
+  let rowsHtml = d.rows.map(r => `
+    <div class="cons-row">
+      <span class="ck">${r.k}</span>
+      <span class="cv ${r.vc}">${r.v}</span>
+    </div>`).join('');
+
+  let noteHtml = d.note ? `<div class="cons-note"><strong>${d.note.title}</strong>${d.note.body}</div>` : '';
+  let recHtml = d.rec ? `<div class="rec-panel"><strong>&#9654; Recommendation</strong>${d.rec.text}</div>` : '';
+  let warnHtml = d.warn ? `<div class="warn-panel"><strong>&#9888; Important</strong>${d.warn.text}</div>` : '';
+
+  cc.innerHTML = `
+    <div class="cons-header">
+      <div class="cons-icon" style="background:${d.iconBg}">${d.icon}</div>
+      <div>
+        <div class="cons-title" style="color:${d.color}">${d.title}</div>
+        <div class="cons-sub">${d.sub}</div>
+      </div>
+    </div>
+    <div class="cons-grid">${metricsHtml}</div>
+    <div class="cons-section">
+      <div class="cons-section-title">Detail</div>
+      ${rowsHtml}
+    </div>
+    ${noteHtml}${recHtml}${warnHtml}
+  `;
+}
+
+// Show default on load
+show('path-b');
+</script>
+</body>
+</html>
