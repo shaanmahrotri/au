@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gold Trade Tool — QFZE</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0C1929;color:#D0E3F5;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:1.5}
+
+/* HEADER */
+.hdr{background:#08111E;border-bottom:2px solid #C8960A;padding:16px 24px 0}
+.hdr-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;gap:16px;flex-wrap:wrap}
+.title{font-size:17px;font-weight:bold;color:#EEF6FF;letter-spacing:.4px}
+.updated{font-size:10px;color:#4A6A8A;margin-top:3px}
+.pills{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.pill{background:#142030;border:1px solid #243A54;padding:4px 14px;border-radius:20px;font-size:11px;color:#90AABB}
+.pill.gold{border-color:#C8960A;color:#E8C84A;font-weight:bold}
+.pill.grn{border-color:#27AE60;color:#2ECC71;font-weight:bold}
+
+/* TABS */
+.tabs{display:flex;gap:0;margin-top:12px}
+.tb{background:transparent;border:none;padding:10px 22px;color:#567088;cursor:pointer;font-size:13px;font-family:Arial;border-bottom:3px solid transparent;transition:all .18s;white-space:nowrap}
+.tb:hover{color:#C0D8EE}
+.tb.on{color:#C8960A;border-bottom-color:#C8960A;font-weight:bold}
+
+/* CONTENT */
+.content{padding:24px;max-width:1120px;margin:0 auto}
+.pane{display:none}
+.pane.on{display:block}
+.stitle{font-size:14px;font-weight:bold;color:#EEF6FF;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid #1E3450}
+
+/* DECISION TREE */
+.tree-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px}
+@media(max-width:800px){.tree-grid{grid-template-columns:1fr}}
+.tcol{display:flex;flex-direction:column;gap:10px}
+.tq{background:#14253A;border:1px solid #1E3450;border-top:3px solid #C8960A;border-radius:6px;padding:13px 15px}
+.tq-tag{font-size:9px;color:#C8960A;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:5px}
+.tq-txt{color:#EEF6FF;font-size:13px;font-weight:bold;line-height:1.45}
+.topt{background:#0F1E30;border:1px solid #1E3450;border-radius:6px;padding:11px 14px;cursor:pointer;transition:all .18s;user-select:none}
+.topt:hover{border-color:#C8960A;background:#162840}
+.topt.on{border-color:#C8960A;background:#1A2E4A}
+.topt-tag{font-size:9px;color:#567088;text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px}
+.topt-ttl{color:#EEF6FF;font-weight:bold;font-size:13px;margin-bottom:3px}
+.topt-sub{color:#8AAABB;font-size:11px;line-height:1.4}
+.topt-time{display:inline-block;margin-top:6px;background:#1A3050;padding:2px 8px;border-radius:10px;font-size:10px;color:#A0CCDD}
+.topt-time.g{background:#0A2A1A;color:#2ECC71}
+.topt-time.a{background:#2A1E00;color:#C8960A}
+.con{display:none;background:#080F1A;border:1px solid #C8960A;border-radius:6px;padding:13px;margin-top:6px}
+.con.show{display:block}
+.cr{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #12233A;font-size:12px}
+.cr:last-child{border-bottom:none}
+.ck{color:#6A8AAA;max-width:55%;line-height:1.35}
+.cv{text-align:right;font-weight:bold;max-width:44%}
+.cv.green{color:#2ECC71}
+.cv.amber{color:#C8960A}
+.cv.red{color:#E74C3C}
+.cv.gold{color:#E8C84A;font-size:13px}
+.cv.white{color:#D0E3F5}
+
+/* SENSITIVITY */
+.snote{background:#14253A;border-left:3px solid #2E5A8B;padding:8px 14px;border-radius:0 4px 4px 0;margin-bottom:16px;font-size:11.5px;color:#8AAABB;line-height:1.6}
+.stbl{border-collapse:collapse;font-size:11px;min-width:540px}
+.stbl th{background:#14253A;color:#8AAABB;padding:7px 11px;text-align:center;border:1px solid #0C1929;font-size:10px;white-space:nowrap}
+.sh{min-width:80px}
+.corner{background:#0C1929;color:#567088;font-size:10px}
+.srh{background:#14253A;color:#8AAABB;padding:7px 12px;font-weight:bold;text-align:left;border:1px solid #0C1929;white-space:nowrap}
+.sc{padding:7px 10px;text-align:right;border:1px solid #0C1929;cursor:default;font-weight:bold;transition:opacity .15s;font-size:11px;white-space:nowrap}
+.sc:hover{opacity:.8}
+.sleg{display:flex;gap:18px;margin-top:12px;align-items:center;font-size:11px;color:#6A8AAA;flex-wrap:wrap}
+.lb{width:16px;height:14px;border-radius:3px;display:inline-block;vertical-align:middle}
+
+/* WATERFALL */
+.wf-wrap{max-width:760px}
+.wfnote{background:#14253A;border-left:3px solid #C8960A;padding:8px 14px;border-radius:0 4px 4px 0;margin-bottom:20px;font-size:11.5px;color:#8AAABB;line-height:1.6}
+.wftbl{width:100%;border-collapse:collapse}
+.wfr td,.wft td{padding:10px 0;border-bottom:1px solid #141F2E}
+.wft td{border-bottom:2px solid #C8960A;border-top:2px solid #C8960A}
+.wfl{color:#8AAABB;font-size:13px;width:195px;padding-right:16px;white-space:nowrap}
+.wft .wfl{color:#EEF6FF;font-weight:bold;font-size:14px}
+.wfb{padding:0 14px;min-width:280px}
+.wft-track{background:#1A2E4A;border-radius:3px;height:18px;overflow:hidden}
+.wfb-bar{height:18px;border-radius:3px;min-width:2px}
+.wfv{text-align:right;font-weight:bold;font-size:13px;width:130px;font-family:monospace;white-space:nowrap}
+.wft .wfv{font-size:15px}
+.wfp{color:#567088;font-size:11px;padding-left:10px;white-space:nowrap;width:140px}
+.wf-detail{margin-top:28px}
+.wf-detail-title{font-size:12px;color:#6A8AAA;text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px}
+.wf-dtbl{border-collapse:collapse;width:100%;max-width:600px;font-size:12px}
+.wf-dtbl td{padding:7px 12px;border-bottom:1px solid #141F2E;color:#8AAABB}
+.wf-dtbl td:last-child{text-align:right;color:#D0E3F5;font-weight:bold;font-family:monospace}
+.wf-dtbl tr:last-child td{border-bottom:none}
+
+/* CASHFLOW TIMELINE */
+.cf-ruler{position:relative;height:44px;margin:0 0 24px;overflow:visible}
+.cf-line{position:absolute;top:20px;left:0;right:0;height:3px;background:#1A2E4A;border-radius:2px}
+.cf-tick{position:absolute;top:13px;width:2px;height:14px;background:#243A54;transform:translateX(-50%)}
+.cf-tlbl{position:absolute;top:30px;font-size:9px;color:#3A5A7A;transform:translateX(-50%)}
+.cf-dot{position:absolute;top:13px;width:12px;height:12px;border-radius:50%;background:#C8960A;transform:translateX(-50%);cursor:pointer;z-index:2;border:2px solid #0C1929}
+.cftbl{width:100%;border-collapse:collapse}
+.cftbl th{background:#14253A;color:#6A8AAA;padding:7px 12px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.6px;border-bottom:1px solid #0C1929}
+.cfd{color:#C8960A;font-weight:bold;font-size:11px;white-space:nowrap;width:70px;padding:8px 12px;border-bottom:1px solid #141F2E}
+.cfe{color:#EEF6FF;font-size:12px;padding:8px 12px;border-bottom:1px solid #141F2E;font-weight:bold}
+.cfp{color:#8AAABB;font-size:11px;padding:8px 12px;border-bottom:1px solid #141F2E;white-space:nowrap}
+.cfa{color:#C8960A;font-weight:bold;font-size:12px;text-align:right;padding:8px 12px;border-bottom:1px solid #141F2E;font-family:monospace;white-space:nowrap}
+.cfn{color:#567088;font-size:11px;padding:8px 12px;border-bottom:1px solid #141F2E}
+.cfm td{background:#0F1E2E}
+.cf-pos{margin-top:28px;max-width:560px}
+.cf-pos-title{font-size:12px;color:#6A8AAA;text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px}
+.csstbl{border-collapse:collapse;width:100%;font-size:12px}
+.cssl{color:#8AAABB;padding:8px 12px;border-bottom:1px solid #141F2E}
+.cssv{font-weight:bold;text-align:right;padding:8px 12px;border-bottom:1px solid #141F2E;font-family:monospace}
+.css-net td{border-top:2px solid #C8960A;border-bottom:2px solid #C8960A;color:#EEF6FF;font-weight:bold;font-size:14px}
+.css-net .cssv{color:#E8C84A;font-size:14px}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-top">
+    <div>
+      <div class="title">GOLD TRADE TOOL &mdash; HE-FALCON / QFZE</div>
+      <div class="updated">Generated 16 May 2026 &nbsp;|&nbsp; Source: gold_arbitrage_v5.xlsx &nbsp;|&nbsp; All values recompute from inputs at top of generate_html.py</div>
+    </div>
+    <div class="pills">
+      <div class="pill">Spot $4,500/oz</div>
+      <div class="pill">400 kg &nbsp;|&nbsp; 32 bars</div>
+      <div class="pill">Buy 6.0% net / Sell 4.0% gross</div>
+      <div class="pill">Spread $1,157,427</div>
+      <div class="pill gold">Net P&amp;L $1,121,742</div>
+      <div class="pill grn">1.94% of ref</div>
+    </div>
+  </div>
+  <div class="tabs">
+    <button class="tb on"  data-tab="tree"        onclick="setTab('tree')">Decision Tree</button>
+    <button class="tb"     data-tab="sensitivity"  onclick="setTab('sensitivity')">Sensitivity</button>
+    <button class="tb"     data-tab="waterfall"    onclick="setTab('waterfall')">P&amp;L Waterfall</button>
+    <button class="tb"     data-tab="cashflow"     onclick="setTab('cashflow')">Cashflow Timeline</button>
+  </div>
+</div>
+
+<div class="content">
+
+<!-- ═══════════════ TAB 1: DECISION TREE ═══════════════ -->
+<div id="pane-tree" class="pane on">
+  <div class="stitle">Key Decisions &mdash; Click any option to see consequences</div>
+  <div class="tree-grid">
+
+    <!-- COLUMN 1: Gold Handling Route -->
+    <div class="tcol">
+      <div class="tq">
+        <div class="tq-tag">Decision 1</div>
+        <div class="tq-txt">Where does the gold get certified / refined?</div>
+      </div>
+
+      <div class="topt" id="opt-hk" data-group="g1" onclick="toggle('opt-hk','con-hk')">
+        <div class="topt-tag">Option A</div>
+        <div class="topt-ttl">Hong Kong Recertification</div>
+        <div class="topt-sub">Decertified in Bangkok &rarr; recertified in HK &rarr; LBMA Good Delivery output</div>
+        <span class="topt-time g">~1 week &nbsp;|&nbsp; Back-to-back structure</span>
+      </div>
+      <div class="con" id="con-hk" data-con-group="g1">
+        <div class="cr"><span class="ck">Route</span><span class="cv white">Hong Kong recertification</span></div>
+<div class="cr"><span class="ck">Output</span><span class="cv green">LBMA Good Delivery</span></div>
+<div class="cr"><span class="ck">Timeline</span><span class="cv green">~1 week (back-to-back)</span></div>
+<div class="cr"><span class="ck">Buyer market</span><span class="cv green">Any LBMA-standard buyer</span></div>
+<div class="cr"><span class="ck">Premium over QR</span><span class="cv green">Higher — LBMA cert commands full spot</span></div>
+<div class="cr"><span class="ck">Risk</span><span class="cv amber">Decertification in Bangkok required first</span></div>
+<div class="cr"><span class="ck">DLC structure</span><span class="cv white">Back-to-back MT700 (standard)</span></div>
+
+      </div>
+
+      <div class="topt" id="opt-qatar" data-group="g1" onclick="toggle('opt-qatar','con-qatar')">
+        <div class="topt-tag">Option B</div>
+        <div class="topt-ttl">Qatar Refinery Route</div>
+        <div class="topt-sub">Ships via Falcon&rsquo;s related refinery in Qatar &rarr; non-LBMA output</div>
+        <span class="topt-time a">~2 weeks &nbsp;|&nbsp; Non-LBMA buyer market</span>
+      </div>
+      <div class="con" id="con-qatar" data-con-group="g1">
+        <div class="cr"><span class="ck">Route</span><span class="cv white">Qatar refinery route</span></div>
+<div class="cr"><span class="ck">Output</span><span class="cv amber">Non-LBMA (in-house cert)</span></div>
+<div class="cr"><span class="ck">Timeline</span><span class="cv amber">~2 weeks</span></div>
+<div class="cr"><span class="ck">Buyer market</span><span class="cv amber">Buyers who accept non-LBMA</span></div>
+<div class="cr"><span class="ck">UBO connection</span><span class="cv white">Falcon's related refinery</span></div>
+<div class="cr"><span class="ck">Discount</span><span class="cv amber">Typically wider — non-LBMA buyers</span></div>
+<div class="cr"><span class="ck">Advantage</span><span class="cv green">Keeps within UBO ecosystem</span></div>
+
+      </div>
+    </div>
+
+    <!-- COLUMN 2: POP Resolution -->
+    <div class="tcol">
+      <div class="tq">
+        <div class="tq-tag">Decision 2</div>
+        <div class="tq-txt">How do we break the Proof of Product deadlock?</div>
+      </div>
+
+      <div class="topt" id="opt-icpo" data-group="g2" onclick="toggle('opt-icpo','con-icpo')">
+        <div class="topt-tag">Path A</div>
+        <div class="topt-ttl">ICPO First</div>
+        <div class="topt-sub">Q issues ICPO &rarr; seller shows POP on receipt</div>
+        <span class="topt-time a">Creates obligation for Q</span>
+      </div>
+      <div class="con" id="con-icpo" data-con-group="g2">
+        <div class="cr"><span class="ck">Approach</span><span class="cv white">Intermediary issues ICPO</span></div>
+<div class="cr"><span class="ck">Seller action</span><span class="cv white">Shows POP on receipt</span></div>
+<div class="cr"><span class="ck">Risk to Q</span><span class="cv amber">ICPO creates obligation</span></div>
+<div class="cr"><span class="ck">Risk to seller</span><span class="cv amber">POP exposure before commitment</span></div>
+<div class="cr"><span class="ck">Status</span><span class="cv red">Seller resistance reported</span></div>
+<div class="cr"><span class="ck">Suggested next</span><span class="cv white">Pair with legal counsel review</span></div>
+
+      </div>
+
+      <div class="topt" id="opt-joint" data-group="g2" onclick="toggle('opt-joint','con-joint')">
+        <div class="topt-tag">Path B &mdash; Recommended</div>
+        <div class="topt-ttl">Joint Inspection</div>
+        <div class="topt-sub">Neutral third-party inspection in Bangkok &mdash; both sides present</div>
+        <span class="topt-time g">Strongest resolution path</span>
+      </div>
+      <div class="con" id="con-joint" data-con-group="g2">
+        <div class="cr"><span class="ck">Approach</span><span class="cv white">Neutral third-party inspection</span></div>
+<div class="cr"><span class="ck">Who attends</span><span class="cv white">Buyer rep + Seller rep + Inspector</span></div>
+<div class="cr"><span class="ck">Timeline</span><span class="cv white">Logistics TBC — suggest Bangkok</span></div>
+<div class="cr"><span class="ck">Cost</span><span class="cv green">$30,000 (already in model)</span></div>
+<div class="cr"><span class="ck">Outcome</span><span class="cv green">Inspector signs off — POP resolved</span></div>
+<div class="cr"><span class="ck">Status</span><span class="cv green">Strongest path — recommending</span></div>
+
+      </div>
+
+      <div class="topt" id="opt-trial" data-group="g2" onclick="toggle('opt-trial','con-trial')">
+        <div class="topt-tag">Path C</div>
+        <div class="topt-ttl">Trial Trade</div>
+        <div class="topt-sub">~25 kg first consignment to de-risk both sides</div>
+        <span class="topt-time a">Good fallback</span>
+      </div>
+      <div class="con" id="con-trial" data-con-group="g2">
+        <div class="cr"><span class="ck">Approach</span><span class="cv white">Small volume first (de-risk)</span></div>
+<div class="cr"><span class="ck">Suggested size</span><span class="cv white">~25 kg trial consignment</span></div>
+<div class="cr"><span class="ck">Timeline</span><span class="cv amber">~2 weeks for trial + confirm</span></div>
+<div class="cr"><span class="ck">Cost to Q</span><span class="cv white">Proportional — model scales linearly</span></div>
+<div class="cr"><span class="ck">Upside</span><span class="cv green">Builds trust, removes POP deadlock</span></div>
+<div class="cr"><span class="ck">Status</span><span class="cv white">Good fallback if joint inspection refused</span></div>
+
+      </div>
+
+      <div class="topt" id="opt-escrow" data-group="g2" onclick="toggle('opt-escrow','con-escrow')">
+        <div class="topt-tag">Path D</div>
+        <div class="topt-ttl">Escrow / Bank Guarantee</div>
+        <div class="topt-sub">Buyer funds escrow &rarr; seller releases POP &rarr; deal proceeds</div>
+        <span class="topt-time a">Adds 5&ndash;7 days</span>
+      </div>
+      <div class="con" id="con-escrow" data-con-group="g2">
+        <div class="cr"><span class="ck">Approach</span><span class="cv white">Funds in escrow / bank guarantee</span></div>
+<div class="cr"><span class="ck">Mechanics</span><span class="cv white">Buyer funds escrow → Seller releases POP → Deal proceeds</span></div>
+<div class="cr"><span class="ck">Timeline</span><span class="cv amber">Bank processing adds 5-7 days</span></div>
+<div class="cr"><span class="ck">Risk</span><span class="cv amber">Escrow bank selection / terms key</span></div>
+<div class="cr"><span class="ck">Status</span><span class="cv white">Use if Buyer is committed but Seller cautious</span></div>
+
+      </div>
+    </div>
+
+    <!-- COLUMN 3: Commission Structure -->
+    <div class="tcol">
+      <div class="tq">
+        <div class="tq-tag">Decision 3</div>
+        <div class="tq-txt">How does the commission structure work &mdash; and what does Q make?</div>
+      </div>
+
+      <div class="topt" id="opt-comm-curr" data-group="g3" onclick="toggle('opt-comm-curr','con-comm-curr')">
+        <div class="topt-tag">Current model</div>
+        <div class="topt-ttl">Current deal parameters</div>
+        <div class="topt-sub">Buy 8.0% gross / 6.0% net &nbsp;&bull;&nbsp; Sell 4.0% gross / 2.0% net</div>
+        <span class="topt-time g">Net P&amp;L $1,121,742</span>
+      </div>
+      <div class="con" id="con-comm-curr" data-con-group="g3">
+        <div class="cr"><span class="ck">Buy gross / net discount</span><span class="cv white">8.0% / 6.0%</span></div>
+<div class="cr"><span class="ck">Buy commission pool</span><span class="cv white">2.0% = $1,157,427</span></div>
+<div class="cr"><span class="ck">Q retains (buy)</span><span class="cv green">$133,104</span></div>
+<div class="cr"><span class="ck">Sell gross / net discount</span><span class="cv white">4.0% / 2.0%</span></div>
+<div class="cr"><span class="ck">Sell commission pool</span><span class="cv white">2.0% = $1,157,427</span></div>
+<div class="cr"><span class="ck">Q retains (sell)</span><span class="cv green">$277,782</span></div>
+<div class="cr"><span class="ck">Total Q retentions</span><span class="cv green">$410,887</span></div>
+<div class="cr"><span class="ck">Gross spread</span><span class="cv white">$1,157,427</span></div>
+<div class="cr"><span class="ck">Net P&L (after costs)</span><span class="cv gold">$1,121,742  (1.94%)</span></div>
+
+      </div>
+
+      <div class="topt" id="opt-comm-sell" data-group="g3" onclick="toggle('opt-comm-sell','con-comm-sell')">
+        <div class="topt-tag">Scenario</div>
+        <div class="topt-ttl">Pools contractually borne by Seller / Buyer</div>
+        <div class="topt-sub">Neither pool hits Q&rsquo;s P&amp;L directly &mdash; Q earns spread + retentions only</div>
+        <span class="topt-time g">Cleanest P&amp;L presentation</span>
+      </div>
+      <div class="con" id="con-comm-sell" data-con-group="g3">
+        <div class="cr"><span class="ck">Buy pool paid by</span><span class="cv white">Seller</span></div>
+<div class="cr"><span class="ck">Q P&L impact — buy pool</span><span class="cv green">None (passes through)</span></div>
+<div class="cr"><span class="ck">Sell pool paid by</span><span class="cv white">Buyer</span></div>
+<div class="cr"><span class="ck">Q P&L impact — sell pool</span><span class="cv green">None (passes through)</span></div>
+<div class="cr"><span class="ck">Q income = spread + retentions</span><span class="cv gold">$1,121,742</span></div>
+<div class="cr"><span class="ck">Note</span><span class="cv amber">'Paid By' = contractual disbursement only</span></div>
+
+      </div>
+
+      <div class="topt" id="opt-comm-inter" data-group="g3" onclick="toggle('opt-comm-inter','con-comm-inter')">
+        <div class="topt-tag">Scenario</div>
+        <div class="topt-ttl">Q as contractual disbursing party</div>
+        <div class="topt-sub">Q handles pool disbursement &mdash; cashflow impact only, not P&amp;L</div>
+        <span class="topt-time a">Watch cashflow timing</span>
+      </div>
+      <div class="con" id="con-comm-inter" data-con-group="g3">
+        <div class="cr"><span class="ck">If Q pays either pool</span><span class="cv amber">Pool passes through Q's books</span></div>
+<div class="cr"><span class="ck">P&L impact</span><span class="cv white">None — Q disburses pool, retains mandate share</span></div>
+<div class="cr"><span class="ck">This model</span><span class="cv green">$410,887 retained by Q</span></div>
+<div class="cr"><span class="ck">Cashflow effect</span><span class="cv amber">Q funds pool upfront, recovers at settlement</span></div>
+<div class="cr"><span class="ck">Net P&L unchanged at</span><span class="cv gold">$1,121,742</span></div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════ TAB 2: SENSITIVITY ═══════════════ -->
+<div id="pane-sensitivity" class="pane">
+  <div class="stitle">Net P&amp;L Sensitivity &mdash; Volume vs Sell Gross Discount</div>
+  <div class="snote">
+    <strong>How to read this:</strong> rows = volume (kg), columns = sell gross discount (what Q receives from buyer).
+    Buy net discount held at 6.0% &mdash; the price Q pays Aureus Trading Co. Ltd.
+    Gold outline = current base case (400 kg &nbsp;/&nbsp; 4.0% sell gross discount).
+    Q retentions and costs scale with volume. Hover any cell for exact value.
+  </div>
+  <div style="overflow-x:auto">
+    <table class="stbl">
+      <thead>
+        <tr>
+          <th class="corner">Vol &darr; &nbsp; Sell &rarr;</th>
+          <th class="sh">1%</th><th class="sh">2%</th><th class="sh">3%</th><th class="sh">4%</th><th class="sh">5%</th><th class="sh">6%</th><th class="sh">7%</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="srh">100 kg</td><td class="sc" style="background:rgb(180,110,15);color:#FFFFFF;" title="$716,641 | 100 kg | 1% sell disc">$716,641</td><td class="sc" style="background:rgb(180,110,15);color:#FFFFFF;" title="$571,239 | 100 kg | 2% sell disc">$571,239</td><td class="sc" style="background:rgb(180,110,15);color:#FFFFFF;" title="$425,837 | 100 kg | 3% sell disc">$425,837</td><td class="sc" style="background:rgb(180,110,15);color:#FFFFFF;" title="$280,435 | 100 kg | 4% sell disc">$280,435</td><td class="sc" style="background:rgb(180,110,15);color:#FFFFFF;" title="$135,034 | 100 kg | 5% sell disc">$135,034</td><td class="sc" style="background:#5C1010;color:#FFAAAA;" title="$-10,368 | 100 kg | 6% sell disc">$-10,368</td><td class="sc" style="background:#5C1010;color:#FFAAAA;" title="$-155,770 | 100 kg | 7% sell disc">$-155,770</td></tr>
+<tr><td class="srh">200 kg</td><td class="sc" style="background:rgb(180,110,15);color:#FFFFFF;" title="$1,433,281 | 200 kg | 1% sell disc">$1,433,281</td><td class="sc" style="background:rgb(180,110,15);color:#FFFFFF;" title="$1,142,478 | 200 kg | 2% sell disc">$1,142,478</td><td class="sc" style="background:rgb(180,110,15);color:#FFFFFF;" title="$851,674 | 200 kg | 3% sell disc">$851,674</td><td class="sc" style="background:rgb(180,110,15);color:#FFFFFF;" title="$560,871 | 200 kg | 4% sell disc">$560,871</td><td class="sc" style="background:rgb(180,110,15);color:#FFFFFF;" title="$270,067 | 200 kg | 5% sell disc">$270,067</td><td class="sc" style="background:#5C1010;color:#FFAAAA;" title="$-20,736 | 200 kg | 6% sell disc">$-20,736</td><td class="sc" style="background:#5C1010;color:#FFAAAA;" title="$-311,540 | 200 kg | 7% sell disc">$-311,540</td></tr>
+<tr><td class="srh">300 kg</td><td class="sc" style="background:rgb(180,110,15);color:#FFFFFF;" title="$2,149,922 | 300 kg | 1% sell disc">$2,149,922</td><td class="sc" style="background:rgb(180,110,15);color:#FFFFFF;" title="$1,713,717 | 300 kg | 2% sell disc">$1,713,717</td><td class="sc" style="background:rgb(180,110,15);color:#FFFFFF;" title="$1,277,512 | 300 kg | 3% sell disc">$1,277,512</td><td class="sc" style="background:rgb(180,110,15);color:#FFFFFF;" title="$841,306 | 300 kg | 4% sell disc">$841,306</td><td class="sc" style="background:rgb(180,110,15);color:#FFFFFF;" title="$405,101 | 300 kg | 5% sell disc">$405,101</td><td class="sc" style="background:#5C1010;color:#FFAAAA;" title="$-31,104 | 300 kg | 6% sell disc">$-31,104</td><td class="sc" style="background:#5C1010;color:#FFAAAA;" title="$-467,309 | 300 kg | 7% sell disc">$-467,309</td></tr>
+<tr><td class="srh">400 kg</td><td class="sc" style="background:rgb(139,142,20);color:#FFFFFF;" title="$2,866,563 | 400 kg | 1% sell disc">$2,866,563</td><td class="sc" style="background:rgb(180,110,15);color:#FFFFFF;" title="$2,284,956 | 400 kg | 2% sell disc">$2,284,956</td><td class="sc" style="background:rgb(180,110,15);color:#FFFFFF;" title="$1,703,349 | 400 kg | 3% sell disc">$1,703,349</td><td class="sc" style="background:rgb(180,110,15);color:#FFFFFF;border:2px solid #C8960A !important;" title="$1,121,742 | 400 kg | 4% sell disc">$1,121,742</td><td class="sc" style="background:rgb(180,110,15);color:#FFFFFF;" title="$540,135 | 400 kg | 5% sell disc">$540,135</td><td class="sc" style="background:#5C1010;color:#FFAAAA;" title="$-41,472 | 400 kg | 6% sell disc">$-41,472</td><td class="sc" style="background:#5C1010;color:#FFAAAA;" title="$-623,079 | 400 kg | 7% sell disc">$-623,079</td></tr>
+<tr><td class="srh">500 kg</td><td class="sc" style="background:rgb(130,149,20);color:#FFFFFF;" title="$3,583,203 | 500 kg | 1% sell disc">$3,583,203</td><td class="sc" style="background:rgb(140,141,20);color:#FFFFFF;" title="$2,856,195 | 500 kg | 2% sell disc">$2,856,195</td><td class="sc" style="background:rgb(180,110,15);color:#FFFFFF;" title="$2,129,186 | 500 kg | 3% sell disc">$2,129,186</td><td class="sc" style="background:rgb(180,110,15);color:#FFFFFF;" title="$1,402,177 | 500 kg | 4% sell disc">$1,402,177</td><td class="sc" style="background:rgb(180,110,15);color:#FFFFFF;" title="$675,168 | 500 kg | 5% sell disc">$675,168</td><td class="sc" style="background:#5C1010;color:#FFAAAA;" title="$-51,840 | 500 kg | 6% sell disc">$-51,840</td><td class="sc" style="background:#5C1010;color:#FFAAAA;" title="$-778,849 | 500 kg | 7% sell disc">$-778,849</td></tr>
+<tr><td class="srh">750 kg</td><td class="sc" style="background:rgb(20,182,49);color:#FFFFFF;" title="$5,374,805 | 750 kg | 1% sell disc">$5,374,805</td><td class="sc" style="background:rgb(120,157,20);color:#FFFFFF;" title="$4,284,292 | 750 kg | 2% sell disc">$4,284,292</td><td class="sc" style="background:rgb(135,145,20);color:#FFFFFF;" title="$3,193,779 | 750 kg | 3% sell disc">$3,193,779</td><td class="sc" style="background:rgb(180,110,15);color:#FFFFFF;" title="$2,103,266 | 750 kg | 4% sell disc">$2,103,266</td><td class="sc" style="background:rgb(180,110,15);color:#FFFFFF;" title="$1,012,753 | 750 kg | 5% sell disc">$1,012,753</td><td class="sc" style="background:#5C1010;color:#FFAAAA;" title="$-77,761 | 750 kg | 6% sell disc">$-77,761</td><td class="sc" style="background:#5C1010;color:#FFAAAA;" title="$-1,168,274 | 750 kg | 7% sell disc">$-1,168,274</td></tr>
+<tr><td class="srh">1000 kg</td><td class="sc" style="background:rgb(0,190,60);color:#FFFFFF;" title="$7,166,407 | 1000 kg | 1% sell disc">$7,166,407</td><td class="sc" style="background:rgb(16,183,51);color:#FFFFFF;" title="$5,712,389 | 1000 kg | 2% sell disc">$5,712,389</td><td class="sc" style="background:rgb(120,157,20);color:#FFFFFF;" title="$4,258,372 | 1000 kg | 3% sell disc">$4,258,372</td><td class="sc" style="background:rgb(140,141,20);color:#FFFFFF;" title="$2,804,354 | 1000 kg | 4% sell disc">$2,804,354</td><td class="sc" style="background:rgb(180,110,15);color:#FFFFFF;" title="$1,350,337 | 1000 kg | 5% sell disc">$1,350,337</td><td class="sc" style="background:#5C1010;color:#FFAAAA;" title="$-103,681 | 1000 kg | 6% sell disc">$-103,681</td><td class="sc" style="background:#5C1010;color:#FFAAAA;" title="$-1,557,698 | 1000 kg | 7% sell disc">$-1,557,698</td></tr>
+
+      </tbody>
+    </table>
+  </div>
+  <div class="sleg">
+    <span><span class="lb" style="background:#5C1010"></span>&nbsp; Loss</span>
+    <span><span class="lb" style="background:rgb(180,110,15)"></span>&nbsp; Marginal</span>
+    <span><span class="lb" style="background:rgb(80,175,40)"></span>&nbsp; Strong</span>
+    <span style="color:#C8960A">&#9633; Gold border = base case</span>
+    <span>All values in USD</span>
+  </div>
+</div>
+
+<!-- ═══════════════ TAB 3: WATERFALL ═══════════════ -->
+<div id="pane-waterfall" class="pane">
+  <div class="stitle">P&amp;L Waterfall &mdash; QFZE View</div>
+  <div class="wfnote">
+    <strong>How it builds:</strong> Q receives the sell <em>gross</em> value ($55,556,490) and pays the buy <em>net</em> value ($54,399,063).
+    The difference is the gross spread. Q then retains a portion of the commission mandate on each leg.
+    Operating costs are deducted last.
+  </div>
+  <div class="wf-wrap">
+    <table class="wftbl">
+      <tbody>
+        
+<tr class="wfr">
+  <td class="wfl">Gross Spread</td>
+  <td class="wfb"><div class="wft-track"><div class="wfb-bar" style="width:87.0%;background:#2E5A8B"></div></div></td>
+  <td class="wfv" style="color:#2E5A8B">+ $1,157,427</td>
+  <td class="wfp"></td>
+</tr>
+<tr class="wfr">
+  <td class="wfl">Q Buy Retention</td>
+  <td class="wfb"><div class="wft-track"><div class="wfb-bar" style="width:10.0%;background:#27AE60"></div></div></td>
+  <td class="wfv" style="color:#27AE60">+ $133,104</td>
+  <td class="wfp"></td>
+</tr>
+<tr class="wfr">
+  <td class="wfl">Q Sell Retention</td>
+  <td class="wfb"><div class="wft-track"><div class="wfb-bar" style="width:20.9%;background:#2ECC71"></div></div></td>
+  <td class="wfv" style="color:#2ECC71">+ $277,782</td>
+  <td class="wfp"></td>
+</tr>
+<tr class="wfr">
+  <td class="wfl">Operating Costs</td>
+  <td class="wfb"><div class="wft-track"><div class="wfb-bar" style="width:33.6%;background:#C0392B"></div></div></td>
+  <td class="wfv" style="color:#C0392B">- $446,572</td>
+  <td class="wfp"></td>
+</tr>
+<tr class="wft">
+  <td class="wfl">NET P&L</td>
+  <td class="wfb"><div class="wft-track"><div class="wfb-bar" style="width:84.3%;background:#C8960A"></div></div></td>
+  <td class="wfv" style="color:#C8960A">= $1,121,742</td>
+  <td class="wfp" style="color:#6A8AAA">1.94% of LBMA ref</td>
+</tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="wf-detail">
+    <div class="wf-detail-title">Commission Detail</div>
+    <table class="wf-dtbl">
+      <tr><td>Buy pool (2.0% of buy gross)</td><td>$1,157,427</td></tr>
+      <tr><td>&nbsp;&nbsp; External agents</td><td>$798,625</td></tr>
+      <tr><td>&nbsp;&nbsp; Q mandate share (0.5%)</td><td>$266,208</td></tr>
+      <tr><td>&nbsp;&nbsp; Q retains (50.0% of mandate)</td><td style="color:#2ECC71">$133,104</td></tr>
+      <tr><td>Sell pool (2.0% of sell gross)</td><td>$1,157,427</td></tr>
+      <tr><td>&nbsp;&nbsp; External agents</td><td>$555,565</td></tr>
+      <tr><td>&nbsp;&nbsp; Q mandate share (1.0%)</td><td>$555,565</td></tr>
+      <tr><td>&nbsp;&nbsp; Q retains (50.0% of mandate)</td><td style="color:#2ECC71">$277,782</td></tr>
+      <tr><td style="font-weight:bold;color:#D0E3F5">Total Q retentions</td><td style="color:#2ECC71;font-weight:bold">$410,887</td></tr>
+    </table>
+
+    <div class="wf-detail-title" style="margin-top:20px">Cost Breakdown</div>
+    <table class="wf-dtbl">
+      <tr><td>DLC buy leg fee (0.5%)</td><td>$266,208</td></tr>
+      <tr><td>DLC sell leg fee (0.1%)</td><td>$55,556</td></tr>
+      <tr><td>Insurance (0.1%)</td><td>$86,807</td></tr>
+      <tr><td>Site visit / inspection</td><td>$30,000</td></tr>
+      <tr><td>Legal fees</td><td>$5,000</td></tr>
+      <tr><td>Assay / testing</td><td>$3,000</td></tr>
+      <tr><td style="font-weight:bold;color:#D0E3F5">Total operating costs</td><td style="color:#E74C3C;font-weight:bold">-$446,572</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════ TAB 4: CASHFLOW ═══════════════ -->
+<div id="pane-cashflow" class="pane">
+  <div class="stitle">30-Day Cashflow Timeline</div>
+  <div class="cf-ruler">
+    <div class="cf-line"></div>
+    <div class="cf-tick" style="left:0.0%"></div><div class="cf-tlbl" style="left:0.0%">1</div><div class="cf-tick" style="left:6.9%"></div><div class="cf-tlbl" style="left:6.9%">3</div><div class="cf-tick" style="left:13.8%"></div><div class="cf-tlbl" style="left:13.8%">5</div><div class="cf-tick" style="left:20.7%"></div><div class="cf-tlbl" style="left:20.7%">7</div><div class="cf-tick" style="left:27.6%"></div><div class="cf-tlbl" style="left:27.6%">9</div><div class="cf-tick" style="left:34.5%"></div><div class="cf-tlbl" style="left:34.5%">11</div><div class="cf-tick" style="left:41.4%"></div><div class="cf-tlbl" style="left:41.4%">13</div><div class="cf-tick" style="left:48.3%"></div><div class="cf-tlbl" style="left:48.3%">15</div><div class="cf-tick" style="left:55.2%"></div><div class="cf-tlbl" style="left:55.2%">17</div><div class="cf-tick" style="left:62.1%"></div><div class="cf-tlbl" style="left:62.1%">19</div><div class="cf-tick" style="left:69.0%"></div><div class="cf-tlbl" style="left:69.0%">21</div><div class="cf-tick" style="left:75.9%"></div><div class="cf-tlbl" style="left:75.9%">23</div><div class="cf-tick" style="left:82.8%"></div><div class="cf-tlbl" style="left:82.8%">25</div><div class="cf-tick" style="left:89.7%"></div><div class="cf-tlbl" style="left:89.7%">27</div><div class="cf-tick" style="left:96.6%"></div><div class="cf-tlbl" style="left:96.6%">29</div>
+    <div class="cf-dot" title="Day 1" style="left:0.0%"></div><div class="cf-dot" title="Day 3" style="left:6.9%"></div><div class="cf-dot" title="Day 5" style="left:13.8%"></div><div class="cf-dot" title="Day 8" style="left:24.1%"></div><div class="cf-dot" title="Day 12" style="left:37.9%"></div><div class="cf-dot" title="Day 18" style="left:58.6%"></div><div class="cf-dot" title="Day 20" style="left:65.5%"></div><div class="cf-dot" title="Day 22" style="left:72.4%"></div><div class="cf-dot" title="Day 24" style="left:79.3%"></div><div class="cf-dot" title="Day 25" style="left:82.8%"></div><div class="cf-dot" title="Day 26" style="left:86.2%"></div><div class="cf-dot" title="Day 30" style="left:100.0%"></div>
+  </div>
+  <table class="cftbl">
+    <thead>
+      <tr>
+        <th>Day</th>
+        <th>Event</th>
+        <th>From</th>
+        <th>To</th>
+        <th style="text-align:right">Amount</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+  <td class="cfd">Day 1</td>
+  <td class="cfe">DLC opened — sell leg</td>
+  <td class="cfp">Dubai Buyer</td>
+  <td class="cfp">QFZE</td>
+  <td class="cfa">$56,713,917</td>
+  <td class="cfn">MT700 UCP 600</td>
+</tr>
+<tr>
+  <td class="cfd">Day 3</td>
+  <td class="cfe">DLC opened — buy leg</td>
+  <td class="cfp">QFZE</td>
+  <td class="cfp">Aureus Trading Co. Ltd</td>
+  <td class="cfa">$53,241,636</td>
+  <td class="cfn">MT700 UCP 600</td>
+</tr>
+<tr>
+  <td class="cfd">Day 5</td>
+  <td class="cfe">Site visit / inspection</td>
+  <td class="cfp">QFZE</td>
+  <td class="cfp">Inspector</td>
+  <td class="cfa">$30,000</td>
+  <td class="cfn"></td>
+</tr>
+<tr>
+  <td class="cfd">Day 8</td>
+  <td class="cfe">Assay complete</td>
+  <td class="cfp">QFZE</td>
+  <td class="cfp">Assay lab</td>
+  <td class="cfa">$3,000</td>
+  <td class="cfn">Cert issued</td>
+</tr>
+<tr>
+  <td class="cfd">Day 12</td>
+  <td class="cfe">Shipment dispatched</td>
+  <td class="cfp">Aureus Trading Co. Ltd</td>
+  <td class="cfp">QFZE</td>
+  <td class="cfa">-</td>
+  <td class="cfn">Per CIF</td>
+</tr>
+<tr>
+  <td class="cfd">Day 18</td>
+  <td class="cfe">Docs presented — buy DLC</td>
+  <td class="cfp">Aureus Trading Co. Ltd</td>
+  <td class="cfp">QFZE</td>
+  <td class="cfa">-</td>
+  <td class="cfn">Invoice · bar list · assay cert</td>
+</tr>
+<tr>
+  <td class="cfd">Day 20</td>
+  <td class="cfe">Docs presented — sell DLC</td>
+  <td class="cfp">QFZE</td>
+  <td class="cfp">Dubai Buyer</td>
+  <td class="cfa">-</td>
+  <td class="cfn">Full document set</td>
+</tr>
+<tr>
+  <td class="cfd">Day 22</td>
+  <td class="cfe">Sell DLC settled</td>
+  <td class="cfp">Dubai Buyer</td>
+  <td class="cfp">QFZE</td>
+  <td class="cfa">$56,713,917</td>
+  <td class="cfn">Buyer pays net price</td>
+</tr>
+<tr>
+  <td class="cfd">Day 24</td>
+  <td class="cfe">Buy DLC settled</td>
+  <td class="cfp">QFZE</td>
+  <td class="cfp">Aureus Trading Co. Ltd</td>
+  <td class="cfa">$53,241,636</td>
+  <td class="cfn">Q pays gross price</td>
+</tr>
+<tr>
+  <td class="cfd">Day 25</td>
+  <td class="cfe">Buy commission disbursed</td>
+  <td class="cfp">Seller</td>
+  <td class="cfp">Agents</td>
+  <td class="cfa">$1,157,427</td>
+  <td class="cfn">Buy pool · paid by Seller</td>
+</tr>
+<tr>
+  <td class="cfd">Day 25</td>
+  <td class="cfe">Sell commission disbursed</td>
+  <td class="cfp">Buyer</td>
+  <td class="cfp">Agents</td>
+  <td class="cfa">$1,157,427</td>
+  <td class="cfn">Sell pool · paid by Buyer</td>
+</tr>
+<tr>
+  <td class="cfd">Day 26</td>
+  <td class="cfe">DLC fees settled</td>
+  <td class="cfp">QFZE</td>
+  <td class="cfp">Banks</td>
+  <td class="cfa">$321,765</td>
+  <td class="cfn">Buy + sell leg bank fees</td>
+</tr>
+<tr class="cfm">
+  <td class="cfd">Day 30</td>
+  <td class="cfe">Trade closed</td>
+  <td class="cfp">—</td>
+  <td class="cfp">—</td>
+  <td class="cfa">—</td>
+  <td class="cfn">All obligations settled</td>
+</tr>
+
+    </tbody>
+  </table>
+
+  <div class="cf-pos">
+    <div class="cf-pos-title">Intermediary Running Position</div>
+    <table class="csstbl">
+      <tr><td class="cssl">Sell leg received (gross — Q receives)</td><td class="cssv" style="color:#2ECC71">$55,556,490</td></tr>
+<tr><td class="cssl">Buy leg paid (net — Q pays)</td><td class="cssv" style="color:#E74C3C">-$54,399,063</td></tr>
+<tr><td class="cssl">Q commission retentions (both legs)</td><td class="cssv" style="color:#27AE60">$410,887</td></tr>
+<tr><td class="cssl">Operating costs</td><td class="cssv" style="color:#E74C3C">-$446,572</td></tr>
+
+      <tr class="css-net">
+        <td class="cssl" style="color:#EEF6FF;font-weight:bold;font-size:14px">Net cash to QFZE</td>
+        <td class="cssv">$1,121,742</td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+</div><!-- /content -->
+
+<script>
+function setTab(t) {
+  document.querySelectorAll('.pane').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.tb').forEach(b => b.classList.remove('on'));
+  document.getElementById('pane-'+t).classList.add('on');
+  document.querySelector('[data-tab="'+t+'"]').classList.add('on');
+}
+
+function toggle(optId, conId) {
+  var opt = document.getElementById(optId);
+  var con = document.getElementById(conId);
+  var wasOn = opt.classList.contains('on');
+  // close all in same group
+  var grp = opt.getAttribute('data-group');
+  document.querySelectorAll('[data-group="'+grp+'"]').forEach(function(el){
+    el.classList.remove('on');
+  });
+  document.querySelectorAll('[data-con-group="'+grp+'"]').forEach(function(el){
+    el.classList.remove('show');
+  });
+  if (!wasOn) {
+    opt.classList.add('on');
+    con.classList.add('show');
+  }
+}
+</script>
+</body>
+</html>
