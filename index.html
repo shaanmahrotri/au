@@ -167,6 +167,17 @@ body{background:#0C1929;color:#D0E3F5;font-family:Arial,Helvetica,sans-serif;fon
 .hc-cost{color:#E74C3C !important;font-weight:bold}
 .hc-pnl{color:#E8C84A !important;font-weight:bold}
 .hc-base{color:#D0E3F5 !important}
+
+/* SCENARIO SPREAD TABLE */
+.scen-tbl{border-collapse:collapse;width:100%;max-width:860px;margin-bottom:16px}
+.scen-tbl th{background:#14253A;color:#6A8AAA;padding:8px 14px;text-align:center;font-size:10px;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid #0C1929;white-space:nowrap}
+.scen-tbl th:first-child{text-align:left;width:36%}
+.sct-hdr td{background:#0A1520;color:#567088;font-size:10px;text-transform:uppercase;letter-spacing:.8px;padding:7px 14px;border-top:2px solid #1E3450;border-bottom:1px solid #1E3450;font-weight:bold}
+.sct-lbl{color:#8AAABB;font-size:12px;padding:10px 14px;border-bottom:1px solid #141F2E;vertical-align:middle}
+.sct{text-align:center;padding:10px 12px;border-bottom:1px solid #141F2E;font-size:12px;font-weight:bold;border-right:1px solid #0C1929;vertical-align:middle;cursor:default;transition:opacity .15s}
+.sct:hover{opacity:.82}
+.sct-sub{font-size:10px;display:block;margin-top:3px;font-weight:normal;opacity:.85}
+.scen-range{background:#14253A;border:1px solid #1E3450;border-radius:6px;padding:12px 16px;font-size:12px;color:#8AAABB;margin-top:12px;line-height:1.8}
 </style>
 </head>
 <body>
@@ -245,109 +256,109 @@ body{background:#0C1929;color:#D0E3F5;font-family:Arial,Helvetica,sans-serif;fon
     Viable as an additional exit route for certified product; timing is variable by lot size and buyer appetite.
   </div>
 
-  <!-- BUYER COMMITMENT REALITY -->
-  <div class="sec-label" style="margin-top:28px">Buyer Commitment Reality</div>
+  <!-- BUYER COMMITMENT -->
+  <div class="sec-label" style="margin-top:28px">Negotiating the Buyer Commitment</div>
   <div class="bc-panel">
     <div class="bc-row">
-      <div class="bc-tag">What you want</div>
-      <div class="bc-val">Sell DLC issued before buy DLC opens - zero exposure gap. Buyer has committed financially before any capital is at risk.</div>
+      <div class="bc-tag" style="color:#2ECC71">Ask first</div>
+      <div class="bc-val"><strong style="color:#EEF6FF">Sell DLC before buy DLC opens.</strong> Buyer issues their MT700 to Q before Q commits to the seller. Zero exposure gap - Q's risk is eliminated entirely. Low probability on a first trade as the buyer needs POP to move and POP requires some commitment, but start here and use it to set the frame for the negotiation.</div>
     </div>
     <div class="bc-row">
-      <div class="bc-tag" style="color:#E74C3C">What you get</div>
-      <div class="bc-val">LOI - letter of intent only. No financial commitment, no deterrent if the buyer walks. This is the realistic outcome in this market. Do not structure a trade assuming anything stronger from a buyer who has not yet seen product.</div>
+      <div class="bc-tag" style="color:#C8960A">Ask second</div>
+      <div class="bc-val"><strong style="color:#EEF6FF">Performance bond.</strong> Irrevocable bank guarantee from the buyer, sized to cover the buy DLC value. Creates a real financial deterrent if the buyer walks after Q has committed. A standard instrument - if a counterparty is reluctant to provide one, that reluctance is informative. Realistic ask for a motivated buyer.</div>
     </div>
     <div class="bc-row">
-      <div class="bc-tag" style="color:#C8960A">Implication</div>
-      <div class="bc-val">Buy DLC opens with LOI-only cover. Full exposure from opening until sell DLC issues. A monthly or quarterly DLC structure gives a window to close the sell side before the instrument renews - quantified in the calculator below. No ICPO, no performance bond from a cold buyer.</div>
+      <div class="bc-tag" style="color:#8AAABB">Likely outcome</div>
+      <div class="bc-val"><strong style="color:#EEF6FF">LOI - letter of intent.</strong> Standard practice for a first trade between new counterparties. Creates a documented commitment trail and a moral obligation. Normal at this stage. Protection in an LOI-only position comes from the DLC structure and timing - the scenario spread below shows what the full range of outcomes looks like across all routes and holding periods.</div>
     </div>
     <div class="bc-row">
-      <div class="bc-tag" style="color:#567088">Proof of product</div>
-      <div class="bc-val">Seller will certify to LBMA Good Delivery before dispatch. That cert - plus assay and bar list - is the most practical POP to present to a buyer. Confirm buyer will accept docs-only approach before committing to the buy leg.</div>
+      <div class="bc-tag" style="color:#567088">POP approach</div>
+      <div class="bc-val">Seller certifies to LBMA Good Delivery before dispatch. Present the cert, assay report and bar list to the buyer as proof of product before asking for any commitment. Confirm upfront that the buyer will accept this as sufficient POP - it removes the circular dependency before it becomes a problem.</div>
     </div>
   </div>
 
-  <!-- HOLDING COST & SENSITIVITY -->
-  <div class="sec-label" style="margin-top:28px">Holding Cost &amp; Sensitivity - Adjust Parameters</div>
+  <!-- SCENARIO SPREAD -->
+  <div class="sec-label" style="margin-top:28px">P&amp;L Scenario Spread - All Routes and Holding Periods</div>
   <div class="snote" style="margin-bottom:18px">
-    DLC fee is fixed at opening - a 30-day and a 90-day instrument cost the same at issuance. The real cost of time is <strong>financing</strong> (DLC rate &times; capital tied up &times; quarters held) plus <strong>unhedged price risk</strong> (spot moves against you while the position is open). Use the inputs below to stress-test.
+    All scenarios: 400 kg, spot $4,500/oz, buy net 6.0%.
+    Holding cost = 1.25% per quarter on buy net value $54,399,063.
+    Track B refinery cost range $320-$800/kg. Track C = LBMA cert sold at spot to bank buyers in Qatar, piecemeal lots.
+    Hover any cell for exact net P&amp;L.
   </div>
 
-  <div class="hc-inputs">
-    <div class="hc-field">
-      <label class="hc-label" for="hc-rate">DLC rate (% per quarter)</label>
-      <input class="hc-input" id="hc-rate" type="number" value="1.25" min="0.5" max="3.0" step="0.05" oninput="calcHolding()">
-      <div class="hc-hint">Typical range: 1.0-1.5% per quarter</div>
-    </div>
-    <div class="hc-field">
-      <label class="hc-label" for="hc-qtrs">Holding period (quarters)</label>
-      <input class="hc-input" id="hc-qtrs" type="number" value="1" min="1" max="6" step="1" oninput="calcHolding()">
-      <div class="hc-hint">1 quarter = approx. 90 days</div>
-    </div>
-    <div class="hc-field">
-      <label class="hc-label" for="hc-ref">Refinery cost $/kg (Track B)</label>
-      <input class="hc-input" id="hc-ref" type="number" value="560" min="0" max="1200" step="10" oninput="calcHolding()">
-      <div class="hc-hint">Range $320-800/kg &middot; or ~0.5-0.7% of gold value</div>
-    </div>
-  </div>
-
-  <div style="font-size:11px;color:#3A5A7A;margin-bottom:14px">
-    DLC rate applied to buy net value $54,399,063 (capital exposed on buy leg)
-  </div>
-  <table class="hc-tbl">
+  <table class="scen-tbl">
     <thead>
       <tr>
-        <th style="width:44%;text-align:left">Item</th>
-        <th>Track A</th>
-        <th>Track B</th>
+        <th>Route / Scenario</th>
+        <th>No holding</th>
+        <th>Held 1 quarter</th>
+        <th>Held 2 quarters</th>
       </tr>
     </thead>
     <tbody>
+      <tr class="sct-hdr"><td colspan="4">Track A - Dubai back-to-back (LBMA certified, sell at 4.0%/2.0% to single buyer)</td></tr>
       <tr>
-        <td>Gross P&amp;L before holding cost</td>
-        <td class="hc-pnl">$1,121,742</td>
-        <td class="hc-pnl">$2,222,996</td>
+        <td class="sct-lbl">Base case</td>
+        <td class="sct" style="background:#1C2A08;color:#C8D840" title="$1,121,742">1.94%<br><span class="sct-sub">$1,121,742</span></td>
+        <td class="sct" style="background:#2A1800;color:#E8A020" title="$441,753">0.76%<br><span class="sct-sub">$441,753</span></td>
+        <td class="sct" style="background:#3A0A0A;color:#FF9090" title="-$238,235">Loss<br><span class="sct-sub">-$238,235</span></td>
+      </tr>
+      <tr class="sct-hdr"><td colspan="4">Track B - Qatar refinery route (decertified product, sell at spot -1% to regional buyers)</td></tr>
+      <tr>
+        <td class="sct-lbl">Low refinery cost ($320/kg)</td>
+        <td class="sct" style="background:#083A18;color:#20EE70" title="$2,318,996">4.01%<br><span class="sct-sub">$2,318,996</span></td>
+        <td class="sct" style="background:#0A2A10;color:#40D070" title="$1,639,007">2.83%<br><span class="sct-sub">$1,639,007</span></td>
+        <td class="sct" style="background:#1C2A08;color:#C8D840" title="$959,019">1.66%<br><span class="sct-sub">$959,019</span></td>
       </tr>
       <tr>
-        <td>Less: DLC holding cost</td>
-        <td class="hc-cost" id="hc-dlc">-$679,988</td>
-        <td class="hc-cost" id="hc-dlc-b">-$679,988</td>
+        <td class="sct-lbl">Mid refinery cost ($560/kg)</td>
+        <td class="sct" style="background:#083A18;color:#20EE70" title="$2,222,996">3.84%<br><span class="sct-sub">$2,222,996</span></td>
+        <td class="sct" style="background:#0A2A10;color:#40D070" title="$1,543,007">2.67%<br><span class="sct-sub">$1,543,007</span></td>
+        <td class="sct" style="background:#1C2A08;color:#C8D840" title="$863,019">1.49%<br><span class="sct-sub">$863,019</span></td>
       </tr>
       <tr>
-        <td>Less: Refinery cost (400 kg at $560/kg)</td>
-        <td style="color:#3A5A7A;text-align:right">n/a</td>
-        <td class="hc-cost" id="hc-ref-total">-$224,000</td>
+        <td class="sct-lbl">High refinery cost ($800/kg)</td>
+        <td class="sct" style="background:#083A18;color:#20EE70" title="$2,126,996">3.68%<br><span class="sct-sub">$2,126,996</span></td>
+        <td class="sct" style="background:#0A2A10;color:#40D070" title="$1,447,007">2.50%<br><span class="sct-sub">$1,447,007</span></td>
+        <td class="sct" style="background:#1C2A08;color:#C8D840" title="$767,019">1.33%<br><span class="sct-sub">$767,019</span></td>
       </tr>
-      <tr class="hc-total">
-        <td>Net P&amp;L</td>
-        <td class="hc-pnl" id="hc-pnl-a">$441,753</td>
-        <td class="hc-pnl" id="hc-pnl-b">$1,543,007</td>
+      <tr class="sct-hdr"><td colspan="4">Track C - Qatar piecemeal (LBMA cert, sold at spot to bank buyers - no commission pool)</td></tr>
+      <tr>
+        <td class="sct-lbl">Multiple bank buyers, piecemeal lots</td>
+        <td class="sct" style="background:#083A18;color:#20EE70" title="$3,025,709">5.23%<br><span class="sct-sub">$3,025,709</span></td>
+        <td class="sct" style="background:#083A18;color:#20EE70" title="$2,345,721">4.05%<br><span class="sct-sub">$2,345,721</span></td>
+        <td class="sct" style="background:#0A2A10;color:#40D070" title="$1,665,732">2.88%<br><span class="sct-sub">$1,665,732</span></td>
       </tr>
     </tbody>
   </table>
 
-  <!-- Gold price sensitivity - static -->
+  <div class="scen-range">
+    Full range across all routes and holding periods &nbsp;|&nbsp;
+    Worst case: <strong style="color:#FF9090">$-238,235 (-0.41%)</strong>
+    &nbsp;&nbsp;to&nbsp;&nbsp;
+    Best case: <strong style="color:#20EE70">$3,025,709 (5.23%)</strong>
+    &nbsp;|&nbsp; DLC rate 1.25%/qtr &nbsp;|&nbsp; 400 kg &nbsp;|&nbsp; Spot $4,500/oz
+  </div>
+
+  <!-- Gold price sensitivity -->
   <div style="margin-top:24px;margin-bottom:8px" class="sec-label">
     Gold price sensitivity - 400 kg (12,860 oz) - position unhedged
   </div>
   <table class="hc-tbl" style="max-width:640px">
     <thead>
       <tr>
-        <th>Spot move</th>
-        <th>&minus;2%</th>
-        <th>&minus;1%</th>
-        <th>Flat</th>
-        <th>+1%</th>
-        <th>+2%</th>
+        <th style="text-align:left">Spot move</th>
+        <th>-2%</th><th>-1%</th><th>Flat</th><th>+1%</th><th>+2%</th>
       </tr>
     </thead>
     <tbody>
       <tr>
         <td>P&amp;L impact</td>
-        <td class="hc-cost">&minus;$1,157,427</td>
-        <td class="hc-cost">&minus;$578,713</td>
-        <td style="color:#567088">-</td>
-        <td style="color:#2ECC71;font-weight:bold">+$578,713</td>
-        <td style="color:#2ECC71;font-weight:bold">+$1,157,427</td>
+        <td class="hc-cost">-$1,157,427</td>
+        <td class="hc-cost">-$578,713</td>
+        <td style="color:#567088;text-align:right">-</td>
+        <td style="color:#2ECC71;font-weight:bold;text-align:right">+$578,713</td>
+        <td style="color:#2ECC71;font-weight:bold;text-align:right">+$1,157,427</td>
       </tr>
     </tbody>
   </table>
